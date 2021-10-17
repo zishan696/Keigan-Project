@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Svg, { Line } from "react-native-svg";
+import Svg, { Line, Path, Polyline } from "react-native-svg";
 import {
   TouchableOpacity,
   View,
@@ -32,6 +32,7 @@ export default class MapPage extends Component {
       showDolly: false,
       greenCoordinatesX: [],
       greenCoordinatesY: [],
+      coordinates: "0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,0",
     };
     this.askImage = this.askImage.bind(this);
     this.displayImage = this.displayImage.bind(this);
@@ -64,6 +65,7 @@ export default class MapPage extends Component {
           this.setState({ showClickPos: false });
         }
         if (topic === "XGreenLine_topic") {
+          this.setState({ greenCoordinatesX: [] });
           let data = message;
           let valueX = [];
           let st = "";
@@ -72,7 +74,7 @@ export default class MapPage extends Component {
             if (String.fromCharCode(data[i]) != ",") {
               st += String.fromCharCode(data[i]);
             } else {
-              valueX[j] = parseFloat(st);
+              valueX[j] = parseFloat(st).toFixed(2) * 15 + 175;
               st = "";
               j++;
             }
@@ -81,6 +83,7 @@ export default class MapPage extends Component {
           this.setState({ greenCoordinatesX: valueX.slice() });
         }
         if (topic === "YGreenLine_topic") {
+          this.setState({ greenCoordinatesY: [] });
           let data = message;
           let valueY = [];
           let st = "";
@@ -89,15 +92,34 @@ export default class MapPage extends Component {
             if (String.fromCharCode(data[i]) != ",") {
               st += String.fromCharCode(data[i]);
             } else {
-              valueY[j] = parseFloat(st);
+              valueY[j] = parseFloat(st).toFixed(2) * -15 + 200;
               st = "";
               j++;
             }
           }
           this.setState({ greenCoordinatesY: valueY.slice() });
         }
-        console.log("The array X: ", this.state.greenCoordinatesX);
-        console.log("The array Y: ", this.state.greenCoordinatesY);
+        // console.log("The array X: ", this.state.greenCoordinatesX);
+        // console.log("The array Y: ", this.state.greenCoordinatesY);
+        console.log("The array Length: ", this.state.greenCoordinatesY.length);
+        if (
+          this.state.greenCoordinatesX.length > 0 &&
+          this.state.greenCoordinatesY.length > 0
+        ) {
+          let stVal = "";
+          for (let i = 0; i < this.state.greenCoordinatesY.length; i++) {
+            stVal += this.state.greenCoordinatesX[i].toString();
+            stVal += ",";
+            stVal += this.state.greenCoordinatesY[i].toString();
+            if (i < this.state.greenCoordinatesY.length - 1) {
+              stVal += " ";
+            }
+          }
+          if (stVal.length > 0) {
+            this.setState({ coordinates: stVal });
+            console.log("Coordinates: ", this.state.coordinates);
+          }
+        }
       }.bind(this)
     );
   }
@@ -183,29 +205,29 @@ export default class MapPage extends Component {
         </Text>
       </View>
     ) : null;
-    let lineShow = this.state.showClickPos ? (
-      <Svg>
-        <Line
-          x1={this.state.xCorDoll + 10}
-          y1={this.state.yCorDoll + 60}
-          x2={this.state.xCor}
-          y2={this.state.yCor + 38}
-          stroke="green"
-          strokeWidth="5"
-        />
-        <View style={{ position: "absolute" }}>
-          <Text
-            style={{
-              color: "green",
-              paddingTop: this.state.yCorDoll,
-              paddingLeft: this.state.xCorDoll,
-            }}
-          >
-            .
-          </Text>
-        </View>
-      </Svg>
-    ) : null;
+    let lineShow =
+      this.state.showClickPos &&
+      this.state.greenCoordinatesX.length > 0 &&
+      this.state.greenCoordinatesY.length > 0 ? (
+        // <Svg>
+        //   <Line
+        //     x1={this.state.greenCoordinatesX[0] + 10}
+        //     y1={this.state.greenCoordinatesY[0] + 60}
+        //     x2={this.state.greenCoordinatesX[11]}
+        //     y2={this.state.greenCoordinatesY[11] + 38}
+        //     stroke="green"
+        //     strokeWidth="5"
+        //   />
+        // </Svg>
+        <Svg>
+          <Polyline
+            points={this.state.coordinates}
+            fill="none"
+            stroke="green"
+            strokeWidth="3"
+          />
+        </Svg>
+      ) : null;
 
     return (
       <SafeAreaView style={styles.view}>

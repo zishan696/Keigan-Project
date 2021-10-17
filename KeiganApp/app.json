@@ -28,6 +28,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "description": "New Update\n1.) Destination/Touch point (Blue dot)\n2.) Dolly location (red dot)\n3.) Prototype path location/Direction (Green Line) "
+    "description": "New Update\n3.) Path location/Direction (Green Line) Incomplete "
   }
 }
